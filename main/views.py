@@ -3,19 +3,18 @@ from django.shortcuts import render, redirect
 import shelve
 
 
-from models import Puntuacion, Pelicula
+from models import Puntuacion, Pelicula, Genero
 from main.recommendations import  transformPrefs, calculateSimilarItems, getRecommendedItems
-from main.forms import UsuarioBusquedaForm
+from main.forms import UsuarioBusquedaForm, GeneroBusquedaForm
 from django.conf import settings 
 from main.populateDB import populate_database
+from django.http.response import HttpResponseRedirect
 
 
 # Create your views here.
 
-# Funcion que carga en el diccionario Prefs todas las puntuaciones de usuarios a peliculas. Tambien carga el diccionario inverso
-# Serializa los resultados en dataRS.dat
 def loadDict():
-    Prefs={}   # matriz de usuarios y puntuaciones a cada a items
+    Prefs={}  
     shelf = shelve.open("dataRS.dat")
     ratings = Puntuacion.objects.all()
     for ra in ratings:
@@ -38,6 +37,22 @@ def cargar_datos(request):
     if (peli, gen, us, punt) is not None:
         mensaje = "Base de datos poblada correctamente."
     return render(request, 'cargar_datos.html', {'peliculas': peli, 'generos': gen, 'usuarios': us, 'puntuaciones': punt, 'mensaje': mensaje})
+
+def loadRS(request):
+    loadDict()
+    return HttpResponseRedirect('/index.html')
+
+def buscar_peliculas_por_genero(request):
+    formulario = GeneroBusquedaForm()
+    peliculas = None
+    
+    if request.method == 'POST':
+        formulario = GeneroBusquedaForm(request.POST)
+        if formulario.is_valid():
+            genero = Genero.objects.get(id=formulario.cleaned_data['genero'].id)
+            peliculas = genero.pelicula_set.all()
+   
+    return render(request, 'peliculasporgenero.html', {'peliculas': peliculas, 'formulario': formulario})
     
 def recomendar_peliculas_usuario_RSitems(request):
     formulario = UsuarioBusquedaForm()
