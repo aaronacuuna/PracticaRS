@@ -4,7 +4,7 @@ import shelve
 
 
 from models import Puntuacion, Pelicula, Genero
-from main.recommendations import  transformPrefs, calculateSimilarItems, getRecommendedItems
+from main.recommendations import  transformPrefs, calculateSimilarItems, getRecommendedItems, topMatches, sim_distance
 from main.forms import UsuarioBusquedaForm, GeneroBusquedaForm
 from django.conf import settings 
 from main.populateDB import populate_database
@@ -77,4 +77,38 @@ def recomendar_peliculas_usuario_RSitems(request):
             items= zip(peliculas,puntuaciones)
     
     return render(request, 'recomendar_peliculas_usuarios.html', {'formulario':formulario, 'items':items, 'STATIC_URL':settings.STATIC_URL})
+
+
+def mostrar_usuarios_mas_estrictos(request):
+    # Construir diccionario de preferencias desde la BD
+    Prefs = {}
+    ratings = Puntuacion.objects.all()
+    for ra in ratings:
+        user = int(ra.idUsuario.idUsuario)
+        itemid = int(ra.idPelicula.idPelicula)
+        rating = float(ra.puntuacion)
+        Prefs.setdefault(user, {})
+        Prefs[user][itemid] = rating
+
+    # Calcular media de cada usuario
+    medias = []
+    for user, items in Prefs.items():
+        if len(items) == 0:
+            continue
+        avg = sum(items.values()) / len(items)
+        medias.append((avg, user))
+
+    # Orden ascendente por media y tomar los 3 más estrictos (peores medias)
+    medias.sort()
+    estrictos = medias[:3]
+
+    # Para cada usuario estricto, obtener los 3 usuarios más parecidos (distancia euclídea)
+    resultado = []
+    for (avg, user) in estrictos:
+        similares = topMatches(Prefs, user, n=3, similarity=sim_distance)
+        # topMatches devuelve (sim, other_user); convertir a lista de tuplas (user, sim)
+        similares_formateados = [(other, sim) for (sim, other) in similares]
+        resultado.append({'usuario': user, 'media': avg, 'similares': similares_formateados})
+
+    return render(request, 'usuarios_estrictos.html', {'resultado': resultado, 'STATIC_URL': settings.STATIC_URL})
 
