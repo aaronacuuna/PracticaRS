@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block titulo %} Cargar Datos {% endblock %}
+
+{% block contenido %}
+    <h2> ¿Quiere cargar los datos de películas? </h2>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit">Cargar datos</button>
+    </form>
+    {% if mensaje %}
+        <h3>{{ mensaje }}</h3>
+        <ul>
+            <li>Películas añadidas: {{ peliculas }}</li>
+            <li>Géneros añadidos: {{ generos }}</li>
+            <li>Usuarios añadidos: {{ usuarios }}</li>
+            <li>Puntuaciones añadidas: {{ puntuaciones }}</li>
+        </ul>
+    {% else %}  
+      <p>Pulsa el botón de arriba para borrar y recargar los datos.</p>
+    {% endif %}
+{% endblock %}
+
+
+{% block pie %}
+    <p> Pie de pagina de Peliculas Movilens </p>
+{% endblock %}

@@ -3,6 +3,7 @@ from django.shortcuts import render
 import shelve
 from models import Puntuacion
 from main.recommendations import  transformPrefs, calculateSimilarItems
+from populateDB import populate_database
 
 # Create your views here.
 
@@ -22,3 +23,11 @@ def loadDict():
     shelf['ItemsPrefs']=transformPrefs(Prefs)
     shelf['SimItems']=calculateSimilarItems(Prefs, n=10)
     shelf.close()
+    
+    
+def cargar_datos(request):
+    mensaje = ""
+    peli, gen, us, punt = populate_database()
+    if (peli, gen, us, punt) is not None:
+        mensaje = "Base de datos poblada correctamente."
+    return render(request, 'cargar_datos.html', {'peliculas': peli, 'generos': gen, 'usuarios': us, 'puntuaciones': punt, 'mensaje': mensaje})
