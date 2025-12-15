@@ -4,7 +4,7 @@ import shelve
 
 
 from main.models import Puntuacion, Pelicula, Genero
-from main.recommendations import  transformPrefs, calculateSimilarItems, getRecommendedItems
+from main.recommendations import  transformPrefs, calculateSimilarItems, getRecommendedItems, topMatches, sim_distance
 from main.forms import UsuarioBusquedaForm, GeneroBusquedaForm
 from django.conf import settings 
 from main.populateDB import populate_database
@@ -18,7 +18,7 @@ def loadDict():
     shelf = shelve.open("dataRS.dat")
     ratings = Puntuacion.objects.all()
     for ra in ratings:
-        user = int(ra.idUsuario.idUsuario)
+        user = int(ra.idUsuario)
         itemid = int(ra.idPelicula.idPelicula)
         rating = float(ra.puntuacion)
         Prefs.setdefault(user, {})
@@ -44,7 +44,7 @@ def cargar_datos(request):
 
 def loadRS(request):
     loadDict()
-    return HttpResponseRedirect('/index.html')
+    return HttpResponseRedirect('/')
 
 def buscar_peliculas_por_genero(request):
     formulario = GeneroBusquedaForm()
@@ -88,7 +88,7 @@ def mostrar_usuarios_mas_estrictos(request):
     Prefs = {}
     ratings = Puntuacion.objects.all()
     for ra in ratings:
-        user = int(ra.idUsuario.idUsuario)
+        user = int(ra.idUsuario)
         itemid = int(ra.idPelicula.idPelicula)
         rating = float(ra.puntuacion)
         Prefs.setdefault(user, {})

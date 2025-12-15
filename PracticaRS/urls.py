@@ -16,11 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from main.views import index, cargar_datos, loadRS
+from main.views import index, cargar_datos, loadRS, buscar_peliculas_por_genero, mostrar_usuarios_mas_estrictos, recomendar_peliculas_usuario_RSitems
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index),
     path('cargar_datos/', cargar_datos),
     path('loadRS/', loadRS),
+    path('buscar_peliculas_por_genero/', buscar_peliculas_por_genero),
+    path('mostrar_usuarios_mas_estrictos/', mostrar_usuarios_mas_estrictos),
+    path('recomendar_peliculas_usuario_RSitems/', recomendar_peliculas_usuario_RSitems),
 ]
