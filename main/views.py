@@ -75,6 +75,9 @@ def recomendar_peliculas_usuario_RSitems(request):
         
         if formulario.is_valid():
             idUsuario=formulario.cleaned_data['idUsuario']
+            users = _get_all_users_in_database()
+            # if int(idUsuario) not in users:
+            #     return render(request, 'recomendar_peliculas_usuarios.html', {'formulario':formulario, 'items':items, 'STATIC_URL':settings.STATIC_URL, 'mensaje':'El usuario no existe en la base de datos.'})
             shelf = shelve.open("dataRS.dat")
             Prefs = shelf['Prefs']
             SimItems = shelf['SimItems']
@@ -88,8 +91,11 @@ def recomendar_peliculas_usuario_RSitems(request):
                 puntuaciones.append(re[0])
             items= zip(peliculas,puntuaciones)
     
-    return render(request, 'recomendar_peliculas_usuarios.html', {'formulario':formulario, 'items':items, 'STATIC_URL':settings.STATIC_URL})
+    return render(request, 'recomendar_peliculas_usuarios.html', {'formulario':formulario, 'idUsuario': idUsuario, 'items':items, 'STATIC_URL':settings.STATIC_URL})
 
+def _get_all_users_in_database():
+    users = Puntuacion.objects.values_list('idUsuario', flat=True).distinct()
+    return list(users)
 
 def mostrar_usuarios_mas_estrictos(request):
     # Construir diccionario de preferencias desde la BD

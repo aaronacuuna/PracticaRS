@@ -16,9 +16,12 @@
 	    
 	    <hr>
 
+		{% if mensaje %}
+	    	<div class="mensaje">{{ mensaje }}</div>
+	    {% endif %}
+
 	    {% if items %}
-		    <h4> Películas recomendadas para el usuario {{usuario.idUsuario}}:
-		     edad:{{usuario.edad}} sexo:{{usuario.sexo}} ocupación:{{usuario.ocupacion.nombre}} CP:{{usuario.codigoPostal}}</h4>
+		    <h4> Películas recomendadas para el usuario {{idUsuario}}:</h4>
 		    <dl class="uk-description-list-line">
 
 			{% for pelicula, puntuacion in items %}
