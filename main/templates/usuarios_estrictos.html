@@ -1,0 +1,21 @@
+{% extends 'master.html' %}
+
+{% block content %}
+<h2>Usuarios más estrictos (tres con peor media)</h2>
+<table>
+    <tr><th>Id Usuario</th><th>Media</th><th>Usuarios más parecidos (Id, similitud)</th></tr>
+    {% for u in resultado %}
+    <tr>
+        <td>{{ u.usuario }}</td>
+        <td>{{ u.media }}</td>
+        <td>
+            <ul>
+                {% for other, sim in u.similares %}
+                <li>{{ other }} &mdash; {{ sim }}</li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

@@ -32,11 +32,15 @@ def index(request):
     return render(request, 'index.html')
 
 def cargar_datos(request):
-    mensaje = ""
-    peli, gen, us, punt = populate_database()
-    if (peli, gen, us, punt) is not None:
-        mensaje = "Base de datos poblada correctamente."
-    return render(request, 'cargar_datos.html', {'peliculas': peli, 'generos': gen, 'usuarios': us, 'puntuaciones': punt, 'mensaje': mensaje})
+    if request.method == "POST":
+        if 'Aceptar' in request.POST:
+            num_peliculas, num_generos, num_puntuaciones = populate_database()
+            mensaje="Se han almacenado: " + str(num_peliculas) +" peliculas, " + str(num_generos) +" generos, " + str(num_puntuaciones) +" puntuaciones"
+            return render(request, 'cargar_datos.html', {'mensaje':mensaje})
+        else:
+            return redirect('/')
+    
+    return render(request, 'cargar_datos.html')
 
 def loadRS(request):
     loadDict()
@@ -77,4 +81,38 @@ def recomendar_peliculas_usuario_RSitems(request):
             items= zip(peliculas,puntuaciones)
     
     return render(request, 'recomendar_peliculas_usuarios.html', {'formulario':formulario, 'items':items, 'STATIC_URL':settings.STATIC_URL})
+
+
+def mostrar_usuarios_mas_estrictos(request):
+    # Construir diccionario de preferencias desde la BD
+    Prefs = {}
+    ratings = Puntuacion.objects.all()
+    for ra in ratings:
+        user = int(ra.idUsuario.idUsuario)
+        itemid = int(ra.idPelicula.idPelicula)
+        rating = float(ra.puntuacion)
+        Prefs.setdefault(user, {})
+        Prefs[user][itemid] = rating
+
+    # Calcular media de cada usuario
+    medias = []
+    for user, items in Prefs.items():
+        if len(items) == 0:
+            continue
+        avg = sum(items.values()) / len(items)
+        medias.append((avg, user))
+
+    # Orden ascendente por media y tomar los 3 más estrictos (peores medias)
+    medias.sort()
+    estrictos = medias[:3]
+
+    # Para cada usuario estricto, obtener los 3 usuarios más parecidos (distancia euclídea)
+    resultado = []
+    for (avg, user) in estrictos:
+        similares = topMatches(Prefs, user, n=3, similarity=sim_distance)
+        # topMatches devuelve (sim, other_user); convertir a lista de tuplas (user, sim)
+        similares_formateados = [(other, sim) for (sim, other) in similares]
+        resultado.append({'usuario': user, 'media': avg, 'similares': similares_formateados})
+
+    return render(request, 'usuarios_estrictos.html', {'resultado': resultado, 'STATIC_URL': settings.STATIC_URL})
 
