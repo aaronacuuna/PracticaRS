@@ -32,11 +32,15 @@ def index(request):
     return render(request, 'index.html')
 
 def cargar_datos(request):
-    mensaje = ""
-    peli, gen, us, punt = populate_database()
-    if (peli, gen, us, punt) is not None:
-        mensaje = "Base de datos poblada correctamente."
-    return render(request, 'cargar_datos.html', {'peliculas': peli, 'generos': gen, 'usuarios': us, 'puntuaciones': punt, 'mensaje': mensaje})
+    if request.method == "POST":
+        if 'Aceptar' in request.POST:
+            num_peliculas, num_generos, num_puntuaciones = populate_database()
+            mensaje="Se han almacenado: " + str(num_peliculas) +" peliculas, " + str(num_generos) +" generos, " + str(num_puntuaciones) +" puntuaciones"
+            return render(request, 'cargar_datos.html', {'mensaje':mensaje})
+        else:
+            return redirect('/')
+    
+    return render(request, 'cargar_datos.html')
 
 def loadRS(request):
     loadDict()
