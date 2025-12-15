@@ -14,7 +14,7 @@ class Pelicula(models.Model):
     titulo = models.TextField(verbose_name='Título')
     director = models.TextField(verbose_name='Director')
     imdb = models.IntegerField(verbose_name='URL en IMDB')
-    generos = models.ManyToManyField(Genero)
+    generos = models.ManyToManyField(Genero, null=True)
     
     def __str__(self):
         return self.titulo

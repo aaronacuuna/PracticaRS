@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 import shelve
 
 
-from models import Puntuacion, Pelicula, Genero
+from main.models import Puntuacion, Pelicula, Genero
 from main.recommendations import  transformPrefs, calculateSimilarItems, getRecommendedItems
 from main.forms import UsuarioBusquedaForm, GeneroBusquedaForm
 from django.conf import settings 
