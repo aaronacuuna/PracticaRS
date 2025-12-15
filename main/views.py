@@ -24,7 +24,9 @@ def loadDict():
     shelf['SimItems']=calculateSimilarItems(Prefs, n=10)
     shelf.close()
     
-    
+def index(request):
+    return render(request, 'index.html')
+
 def cargar_datos(request):
     mensaje = ""
     peli, gen, us, punt = populate_database()
