@@ -32,14 +32,22 @@ def index(request):
     return render(request, 'index.html')
 
 def cargar_datos(request):
+    mensaje = ""
+    peliculas = generos = usuarios = puntuaciones = None
+
     if request.method == "POST":
-        if 'Aceptar' in request.POST:
-            num_peliculas, num_generos, num_puntuaciones = populate_database()
-            mensaje="Se han almacenado: " + str(num_peliculas) +" peliculas, " + str(num_generos) +" generos, " + str(num_puntuaciones) +" puntuaciones"
-            return render(request, 'cargar_datos.html', {'mensaje':mensaje})
-        else:
-            return redirect('/')
-    
+        try:
+            num_peliculas, num_generos, num_usuarios, num_puntuaciones = populate_database()
+            mensaje = "Se han cargado los datos correctamente"
+            peliculas = num_peliculas
+            generos = num_generos
+            usuarios = num_usuarios
+            puntuaciones = num_puntuaciones
+        except Exception as e:
+            mensaje = "Error al poblar la base de datos: {}".format(e)
+
+        return render(request, 'cargar_datos.html', {'mensaje': mensaje, 'peliculas': peliculas, 'generos': generos, 'usuarios': usuarios, 'puntuaciones': puntuaciones})
+
     return render(request, 'cargar_datos.html')
 
 def loadRS(request):
